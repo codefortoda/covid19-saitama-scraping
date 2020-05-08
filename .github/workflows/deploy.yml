@@ -26,7 +26,7 @@ jobs:
       run: |
         python main.py
     - name: Slack Notification
-      # if: failure()
+      if: failure()
       uses: rtCamp/action-slack-notify@master
       env:
         SLACK_MESSAGE: 'Error occurred! Please check a log!'
