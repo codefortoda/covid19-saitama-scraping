@@ -91,7 +91,8 @@ def export_data_json():
 
     jokyo_path = get_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
     df_kanja = pd.read_csv(jokyo_path, encoding="cp932")
-    df_kanja["date"] = pd.to_datetime(dt_now.strftime("%Y") + "年" + df_kanja["判明日"], format="%Y年%m月%d日", errors="coerce")
+    # df_kanja["date"] = pd.to_datetime(dt_now.strftime("%Y") + "年" + df_kanja["判明日"], format="%Y年%m月%d日", errors="coerce")
+    df_kanja["date"] = pd.to_datetime(df_kanja["判明日"], format="%Y/%m/%d", errors="coerce")
     df_patients_sum = (
         df_kanja["date"].value_counts().sort_index().asfreq("D", fill_value=0).reset_index()
     )
