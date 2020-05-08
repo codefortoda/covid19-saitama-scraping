@@ -25,6 +25,14 @@ jobs:
     - name: Run script
       run: |
         python main.py
+    - name: Slack Notification
+      if: failure()
+      uses: rtCamp/action-slack-notify@master
+      env:
+        SLACK_MESSAGE: 'Error occurred! Please check a log!'
+        SLACK_TITLE: ':fire: Export JSON Error :fire:'
+        SLACK_USERNAME: covid19_saitama_scraping
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
     - name: deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
