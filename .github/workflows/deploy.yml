@@ -5,7 +5,7 @@ name: Export JSON Files
 
 on:
   schedule:
-    - cron: "35 * * * *"
+    - cron: "0 13 * * *"
 
 jobs:
   build:
