@@ -18,7 +18,7 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Ge
 REQUEST_HEADERS = {"User-Agent": USER_AGENT}
 
 # 最新のお知らせ
-NEWS_URL = "https://www.pref.saitama.lg.jp/index.html"
+NEWS_URL = "https://www.pref.saitama.lg.jp/news/index.html"
 NEWS_LIST = {
     "newsItems": [
     {
