@@ -89,6 +89,18 @@ def export_data_json():
         ],
     }
 
+    # 検査
+    kensa_path = get_csv(settings.KENSA_URL, settings.KENSA_TITLE)
+    df_kensa = pd.read_csv(kensa_path, encoding="cp932", index_col="検査日", parse_dates=True)
+    df_kensa.rename(columns={"検査数（延べ人数）": "小計"}, inplace=True)
+    df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%dT08:00:00.000Z")
+    df_insp_sum = df_kensa.loc[:, ["日付", "小計"]]
+    data["inspections_summary"] = {
+        "data": df_insp_sum.to_dict(orient="records"),
+        "date": dt_update,
+    }
+
+    # 状況
     jokyo_path = get_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
     df_kanja = pd.read_csv(jokyo_path, encoding="cp932")
     df_kanja["date"] = df_kanja["判明日"].apply(
@@ -96,16 +108,12 @@ def export_data_json():
         if x.startswith("202")
         else pd.to_datetime(x, format="%y/%m/%d", errors="coerce")
     )
-    df_patients_sum = (
-        df_kanja["date"].value_counts().sort_index().asfreq("D", fill_value=0).reset_index()
-    )
 
-    df_patients_lastdate = df_patients_sum.iloc[-1]["index"]
-    lastdate = datetime.datetime(dt_now.year, *l_date)
-    while df_patients_lastdate < lastdate:
-        df_patients_lastdate += datetime.timedelta(days=1)
-        s = pd.Series([df_patients_lastdate, 0], index=df_patients_sum.columns)
-        df_patients_sum = df_patients_sum.append(s, ignore_index=True)
+    ser_patients_sum = df_kanja["date"].value_counts().sort_index()
+    if df_kensa.index[-1] not in ser_patients_sum.index:
+        ser_patients_sum[df_kensa.index[-1]] = 0
+
+    df_patients_sum = ser_patients_sum.asfreq("D", fill_value=0).reset_index()
 
     df_patients_sum["日付"] = df_patients_sum["index"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
     df_patients_sum.rename(columns={"date": "小計"}, inplace=True)
@@ -126,16 +134,6 @@ def export_data_json():
 
     data["patients"] = {
         "data": df_patients.to_dict(orient="records"),
-        "date": dt_update,
-    }
-
-    kensa_path = get_csv(settings.KENSA_URL, settings.KENSA_TITLE)
-    df_kensa = pd.read_csv(kensa_path, encoding="cp932", index_col="検査日", parse_dates=True)
-    df_kensa.rename(columns={"検査数（延べ人数）": "小計"}, inplace=True)
-    df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%dT08:00:00.000Z")
-    df_insp_sum = df_kensa.loc[:, ["日付", "小計"]]
-    data["inspections_summary"] = {
-        "data": df_insp_sum.to_dict(orient="records"),
         "date": dt_update,
     }
 
