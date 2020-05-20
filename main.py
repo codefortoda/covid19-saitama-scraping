@@ -99,6 +99,14 @@ def export_data_json():
     df_patients_sum = (
         df_kanja["date"].value_counts().sort_index().asfreq("D", fill_value=0).reset_index()
     )
+
+    df_patients_lastdate = df_patients_sum.iloc[-1]["index"]
+    lastdate = datetime.datetime(dt_now.year, *l_date)
+    while df_patients_lastdate < lastdate:
+        df_patients_lastdate += datetime.timedelta(days=1)
+        s = pd.Series([df_patients_lastdate, 0], index=df_patients_sum.columns)
+        df_patients_sum = df_patients_sum.append(s, ignore_index=True)
+
     df_patients_sum["日付"] = df_patients_sum["index"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
     df_patients_sum.rename(columns={"date": "小計"}, inplace=True)
     df_patients_sum.drop(columns=["index"], inplace=True)
