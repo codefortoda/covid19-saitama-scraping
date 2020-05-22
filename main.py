@@ -52,16 +52,13 @@ def export_data_json():
     r = requests.get(settings.MAIN_SUMMARY_URL)
     r.raise_for_status()
     soup = BeautifulSoup(r.content, "html.parser")
-    tag = soup.find("div", class_="box_info_ttl")
+    tag = soup.select_one("#tmp_contents > div > div.outline > ul")
 
     # 更新日付取得
-    s_date = tag.find("span", class_="txt_big").get_text(strip=True)
-    l_date = list(map(int, re.findall("(\d{1,2})", s_date)))
-
+    lg = re.search("([0-9]+)月([0-9]+)日", tag.get_text())
     dt_now = datetime.datetime.now()
-    dt_update = datetime.datetime(dt_now.year, *l_date, 21, 0).strftime("%Y/%m/%d %H:%M")
+    dt_update = datetime.datetime(dt_now.year, int(lg.group(1)), int(lg.group(2)), 21, 0).strftime("%Y/%m/%d %H:%M")
     data = {"lastUpdate": dt_update}
-    data["lastUpdate"] = dt_update
 
     # 人数取得
     main_sum = [int(i.replace(",", "")) for i in re.findall("([0-9,]+)人", tag.get_text())]
