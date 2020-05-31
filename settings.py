@@ -22,9 +22,9 @@ NEWS_URL = "https://www.pref.saitama.lg.jp/news/index.html"
 NEWS_LIST = {
     "newsItems": [
     {
-      "date": "2020/05/04",
-      "url": "https://www.pref.saitama.lg.jp/a0401/covid19/saitamaken_kinkyujitaisochi0504.html",
-      "text": "5月7日以降の緊急事態措置等について"
+      "date": "2020/05/19",
+      "url": "https://www.pref.saitama.lg.jp/a0704/netsuchusyo/netsu-3sonae.html",
+      "text": "新型コロナウイルス感染症流行期における「熱中症予防3つの備え」"
     },
     {
       "date": "2020/03/24",
