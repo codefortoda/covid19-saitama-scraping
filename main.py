@@ -124,6 +124,7 @@ def export_data_json():
     df_kanja["退院"] = ""
 
     df_patients = df_kanja.loc[:, ["No", "リリース日", "年代", "性別", "居住地", "退院", "date"]].copy()
+    df_patients.dropna(subset=["リリース日"], inplace=True)
     df_patients.fillna("", inplace=True)
 
     data["patients"] = {
