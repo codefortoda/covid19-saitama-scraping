@@ -65,7 +65,7 @@ def export_data_json():
 
     data["main_summary"] = {
         "attr": "検査実施人数",
-        "value": main_sum[10],
+        "value": main_sum[11],
         "children": [
             {
                 "attr": "陽性患者数",
@@ -73,14 +73,14 @@ def export_data_json():
                 "children": [
                     {
                         "attr": "入院中",
-                        "value": main_sum[2] + main_sum[4] + main_sum[5] + main_sum[9],
+                        "value": main_sum[2] + main_sum[4] + main_sum[6] + main_sum[10],
                         "children": [
-                            {"attr": "軽症・中等症", "value": main_sum[2] - main_sum[3]  + main_sum[4] + main_sum[5] + main_sum[9]},
+                            {"attr": "軽症・中等症", "value": main_sum[2] - main_sum[3]  + main_sum[4] + main_sum[6] + main_sum[10]},
                             {"attr": "重症", "value": main_sum[3]},
                         ],
                     },
-                    {"attr": "退院", "value": main_sum[6]},
-                    {"attr": "死亡", "value": main_sum[7]},
+                    {"attr": "退院", "value": main_sum[7]},
+                    {"attr": "死亡", "value": main_sum[8]},
                 ],
             }
         ],
