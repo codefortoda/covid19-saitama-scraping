@@ -62,25 +62,35 @@ def export_data_json():
 
     # 人数取得
     main_sum = [int(i.replace(",", "")) for i in re.findall("([0-9,]+)人", tag.get_text())]
+    tested = main_sum[10]
+    positives = main_sum[0]
+    hospitalized = main_sum[2] + main_sum[4] + main_sum[5] + main_sum[9]
+    serious_symptoms = main_sum[3]
+    discharged = main_sum[6]
+    passed_away = main_sum[7]
+
+    # 人数チェック
+    if positives != (hospitalized + discharged + passed_away):
+        raise ValueError("main_summary does not match.")
 
     data["main_summary"] = {
         "attr": "検査実施人数",
-        "value": main_sum[10],
+        "value": tested,
         "children": [
             {
                 "attr": "陽性患者数",
-                "value": main_sum[0],
+                "value": positives,
                 "children": [
                     {
                         "attr": "入院中",
-                        "value": main_sum[2] + main_sum[4] + main_sum[5] + main_sum[9],
+                        "value": hospitalized,
                         "children": [
-                            {"attr": "軽症・中等症", "value": main_sum[2] - main_sum[3]  + main_sum[4] + main_sum[5] + main_sum[9]},
-                            {"attr": "重症", "value": main_sum[3]},
+                            {"attr": "軽症・中等症", "value": hospitalized - serious_symptoms},
+                            {"attr": "重症", "value": serious_symptoms},
                         ],
                     },
-                    {"attr": "退院", "value": main_sum[6]},
-                    {"attr": "死亡", "value": main_sum[7]},
+                    {"attr": "退院", "value": discharged},
+                    {"attr": "死亡", "value": passed_away},
                 ],
             }
         ],
