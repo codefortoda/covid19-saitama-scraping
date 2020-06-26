@@ -73,7 +73,7 @@ def export_data_json():
                 "children": [
                     {
                         "attr": "入院中",
-                        "value": main_sum[2] + main_sum[4] + main_sum[6] + main_sum[9],
+                        "value": main_sum[2] + main_sum[4] + main_sum[5] + main_sum[9],
                         "children": [
                             {"attr": "軽症・中等症", "value": main_sum[2] - main_sum[3]  + main_sum[4] + main_sum[6] + main_sum[9]},
                             {"attr": "重症", "value": main_sum[3]},
