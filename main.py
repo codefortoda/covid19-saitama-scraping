@@ -61,13 +61,24 @@ def export_data_json():
     data = {"lastUpdate": dt_update}
 
     # 人数取得
-    main_sum = [int(i.replace(",", "")) for i in re.findall("([0-9,]+)人", tag.get_text())]
-    tested = main_sum[10]
-    positives = main_sum[0]
-    hospitalized = main_sum[2] + main_sum[4] + main_sum[5] + main_sum[9]
-    serious_symptoms = main_sum[3]
-    discharged = main_sum[6]
-    passed_away = main_sum[7]
+    m = re.search("陽性確認者数：([0-9,]+)人", tag.get_text())
+    positives = int(m.group(1).replace(",", ""))
+    m = re.search("入院：([0-9,]+)人", tag.get_text())
+    hospitalized = int(m.group(1).replace(",", ""))
+    m = re.search("宿泊療養：([0-9,]+)人", tag.get_text())
+    hospitalized += int(m.group(1).replace(",", ""))
+    m = re.search("自宅療養：([0-9,]+)人", tag.get_text())
+    hospitalized += int(m.group(1).replace(",", ""))
+    m = re.search("調整中：([0-9,]+)人", tag.get_text())
+    hospitalized += int(m.group(1).replace(",", ""))
+    m = re.search("重症者：([0-9,]+)人", tag.get_text())
+    serious_symptoms = int(m.group(1).replace(",", ""))
+    m = re.search("退院・療養終了：([0-9,]+)人", tag.get_text())
+    discharged = int(m.group(1).replace(",", ""))
+    m = re.search("死亡：([0-9,]+)人", tag.get_text())
+    passed_away = int(m.group(1).replace(",", ""))
+    m = re.search("自治体による検査（([0-9]+)月([0-9]+)日まで）：延べ([0-9,]+)人", tag.get_text())
+    tested = int(m.group(3).replace(",", ""))
 
     # 人数チェック
     # if positives != (hospitalized + discharged + passed_away):
