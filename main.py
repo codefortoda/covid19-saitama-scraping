@@ -122,9 +122,10 @@ def export_data_json():
     jokyo_path = get_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
     df_kanja = pd.read_csv(jokyo_path, encoding="cp932")
     df_kanja["date"] = df_kanja["判明日"].apply(
-        lambda x: pd.to_datetime(x, errors="coerce")
-        if x.startswith("202")
-        else pd.to_datetime(x, format="%y/%m/%d", errors="coerce")
+        lambda x: pd.to_datetime(x, format="%y/%m/%d", errors="coerce")
+    #    lambda x: pd.to_datetime(x, errors="coerce")
+    #    if x.startswith("202")
+    #    else pd.to_datetime(x, format="%y/%m/%d", errors="coerce")
     )
 
     ser_patients_sum = df_kanja["date"].value_counts().sort_index()
