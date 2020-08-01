@@ -140,9 +140,11 @@ def export_data_json():
     }
     df_kanja.rename(columns={"NO.": "No"}, inplace=True)
     df_kanja["リリース日"] = df_kanja["date"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
-    df_kanja["date"] = df_kanja["date"].dt.strftime("%Y-%m-%d")
     df_kanja["リリース日"] = df_kanja["リリース日"].mask(df_kanja["判明日"] == "調査中", "調査中")
+    df_kanja["リリース日"] = df_kanja["リリース日"].mask(df_kanja["判明日"] != df_kanja["判明日"], "調査中")
+    df_kanja["date"] = df_kanja["date"].dt.strftime("%Y-%m-%d")
     df_kanja["date"] = df_kanja["date"].mask(df_kanja["判明日"] == "調査中", "調査中")
+    df_kanja["date"] = df_kanja["date"].mask(df_kanja["判明日"] != df_kanja["判明日"], "調査中")
     df_kanja["退院"] = ""
 
     df_patients = df_kanja.loc[:, ["No", "リリース日", "年代", "性別", "居住地", "退院", "date"]].copy()
