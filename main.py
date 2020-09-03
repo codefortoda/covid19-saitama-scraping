@@ -61,51 +61,41 @@ def export_data_json():
     data = {"lastUpdate": dt_update}
 
     # 人数取得
-    m = re.search("陽性確認者数：([0-9,]+)人", tag.get_text())
-    positives = int(m.group(1).replace(",", ""))
-    m = re.search("指定医療機関([0-9,]+)人", tag.get_text())
-    hospitalized = int(m.group(1).replace(",", ""))
-    m = re.search("一般医療機関([0-9,]+)人", tag.get_text())
-    hospitalized += int(m.group(1).replace(",", ""))
-    m = re.search("宿泊療養：([0-9,]+)人", tag.get_text())
-    hospitalized += int(m.group(1).replace(",", ""))
-    m = re.search("自宅療養：([0-9,]+)人", tag.get_text())
-    hospitalized += int(m.group(1).replace(",", ""))
-    m = re.search("調整中：([0-9,]+)人", tag.get_text())
-    hospitalized += int(m.group(1).replace(",", ""))
-    m = re.search("最重症者：([0-9,]+)人 重症者：([0-9,]+)人", tag.get_text())
-    serious_symptoms = int(m.group(1).replace(",", "")) + int(m.group(2).replace(",", ""))
-    m = re.search("退院([0-9,]+)人", tag.get_text())
-    discharged = int(m.group(1).replace(",", ""))
-    m = re.search("療養終了([0-9,]+)人", tag.get_text())
-    discharged += int(m.group(1).replace(",", ""))
-    m = re.search("死亡：([0-9,]+)人", tag.get_text())
-    passed_away = int(m.group(1).replace(",", ""))
-    m = re.search("自治体による検査（([0-9]+)月([0-9]+)日まで）：延べ([0-9,]+)人", tag.get_text())
-    tested = int(m.group(3).replace(",", ""))
-
-    # 人数チェック
-    # if positives != (hospitalized + discharged + passed_away):
-    #     raise ValueError("main_summary does not match.")
+    text = tag.get_text(strip=True)
+    temp={}
+    for i in re.finditer(r"(陽性確認者数|新規公表分|最重症者|重症者|宿泊療養|自宅療養|新型コロナウイルス感染症を死因とする死亡|死亡|調整中|退院・療養終了)：?([0-9,]+)人", text):
+        temp[i.group(1)] = int(i.group(2).replace(",", ""))
+    for i in re.finditer(r"(自治体による検査|民間検査機関等による検査)（\d{1,2}月\d{1,2}日まで）：延べ([0-9,]+)人", text):
+        temp[i.group(1)] = int(i.group(2).replace(",", ""))
+    m = re.search("(入院)：(指定医療機関)([0-9,]+)人\s*(一般医療機関)([0-9,]+)人\s*(計)([0-9,]+)人", text)
+    if m:
+        temp[f"{m.group(1)}_{m.group(2)}"] = int(m.group(3).replace(",", ""))
+        temp[f"{m.group(1)}_{m.group(4)}"] = int(m.group(5).replace(",", ""))
+        temp[f"{m.group(1)}_{m.group(6)}"] = int(m.group(7).replace(",", ""))
+    m = re.search("(退院・療養終了)：(退院)([0-9,]+)人\s*(療養終了)([0-9,]+)人\s*(計)([0-9,]+)人", text)
+    if m:
+        temp[f"{m.group(1)}_{m.group(2)}"] = int(m.group(3).replace(",", ""))
+        temp[f"{m.group(1)}_{m.group(4)}"] = int(m.group(5).replace(",", ""))
+        temp[f"{m.group(1)}_{m.group(6)}"] = int(m.group(7).replace(",", ""))
 
     data["main_summary"] = {
         "attr": "検査実施人数",
-        "value": tested,
+        "value": temp["自治体による検査"],
         "children": [
             {
                 "attr": "陽性患者数",
-                "value": positives,
+                "value": temp["陽性確認者数"],
                 "children": [
                     {
                         "attr": "入院中",
-                        "value": hospitalized,
+                        "value": temp["陽性確認者数"] - temp["退院・療養終了_計"] - temp["死亡"],
                         "children": [
-                            {"attr": "軽症・中等症", "value": hospitalized - serious_symptoms},
-                            {"attr": "重症", "value": serious_symptoms},
+                            {"attr": "軽症・中等症", "value": temp["陽性確認者数"] - temp["退院・療養終了_計"] - temp["死亡"] - temp["最重症者"] - temp["重症者"]},
+                            {"attr": "重症", "value": temp["最重症者"] + temp["重症者"]},
                         ],
                     },
-                    {"attr": "退院", "value": discharged},
-                    {"attr": "死亡", "value": passed_away},
+                    {"attr": "退院", "value": temp["退院・療養終了_計"]},
+                    {"attr": "死亡", "value": temp["死亡"]},
                 ],
             }
         ],
@@ -125,16 +115,12 @@ def export_data_json():
     # 状況
     jokyo_path = get_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
     df_kanja = pd.read_csv(jokyo_path, encoding="cp932")
-    df_kanja["date"] = df_kanja["判明日"].apply(
-        lambda x: pd.to_datetime(x, format="%y/%m/%d", errors="coerce")
-    #    lambda x: pd.to_datetime(x, errors="coerce")
-    #    if x.startswith("202")
-    #    else pd.to_datetime(x, format="%y/%m/%d", errors="coerce")
-    )
+    df_kanja["date"] = pd.to_datetime(df_kanja["判明日"], format="%y/%m/%d", errors="coerce")
 
     ser_patients_sum = df_kanja["date"].value_counts().sort_index()
-    if df_kensa.index[-1] not in ser_patients_sum.index:
+    if df_kensa.index[-1] > ser_patients_sum.index[-1]:
         ser_patients_sum[df_kensa.index[-1]] = 0
+    ser_patients_sum.sort_index(inplace=True)
 
     df_patients_sum = pd.DataFrame({"小計": ser_patients_sum.asfreq("D", fill_value=0)})
     df_patients_sum["日付"] = df_patients_sum.index.strftime("%Y-%m-%dT08:00:00.000Z")
