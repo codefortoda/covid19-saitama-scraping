@@ -63,7 +63,7 @@ def export_data_json():
     # 人数取得
     text = tag.get_text(strip=True)
     temp={}
-    for i in re.finditer(r"(陽性確認者数|新規公表分|最重症者|重症者|宿泊療養|自宅療養|新型コロナウイルス感染症を死因とする死亡|死亡|調整中|退院・療養終了)：?([0-9,]+)人", text):
+    for i in re.finditer(r"(陽性確認者数|新規公表分|最重症者|重症者|宿泊療養|自宅療養|新型コロナウイルス感染症を死因とする死亡|死亡|調整中|退院・療養終了)：?([0-9,]+)人?", text):
         temp[i.group(1)] = int(i.group(2).replace(",", ""))
     for i in re.finditer(r"(自治体による検査|民間検査機関等による検査)（\d{1,2}月\d{1,2}日まで）：延べ([0-9,]+)人", text):
         temp[i.group(1)] = int(i.group(2).replace(",", ""))
