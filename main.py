@@ -72,7 +72,7 @@ def export_data_json():
         temp[f"{m.group(1)}_{m.group(2)}"] = int(m.group(3).replace(",", ""))
         temp[f"{m.group(1)}_{m.group(4)}"] = int(m.group(5).replace(",", ""))
         temp[f"{m.group(1)}_{m.group(6)}"] = int(m.group(7).replace(",", ""))
-    m = re.search("(退院・療養終了)：(退院)([0-9,]+)人\s*(療養終了)([0-9,]+)人\s*(計)([0-9,]+)人", text)
+    m = re.search("(退院・療養終了)：(退院)([0-9,]+)人\s*(療養終了)([0-9,]+)人\s*(計)([0-9,]+)人?", text)
     if m:
         temp[f"{m.group(1)}_{m.group(2)}"] = int(m.group(3).replace(",", ""))
         temp[f"{m.group(1)}_{m.group(4)}"] = int(m.group(5).replace(",", ""))
