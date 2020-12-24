@@ -154,7 +154,7 @@ def export_data_json():
     p.parent.mkdir(parents=True, exist_ok=True)
 
     with p.open(mode="w", encoding="utf-8") as fw:
-        json.dump(data, fw, ensure_ascii=False, indent=4)
+        json.dump(data, fw, ensure_ascii=False)
 
 def export_news_json():
 
