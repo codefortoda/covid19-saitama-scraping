@@ -98,7 +98,7 @@ def export_data_json():
                     {"attr": "死亡", "value": temp["死亡"]},
                 ],
             }
-        ],
+        ]
     }
 
     # main_summary.json
@@ -125,6 +125,7 @@ def export_data_json():
                 ],
             }
         ],
+        "lastUpdate": dt_update
     }
     p = pathlib.Path(settings.DATA_DIR, "main_summary.json")
     p.parent.mkdir(parents=True, exist_ok=True)
