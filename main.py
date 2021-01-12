@@ -149,6 +149,7 @@ def export_data_json():
     df_kanja["判明日"] = df_kanja["判明日"].str.replace("2000/(.*)", r"2020/\1", regex=True)
     df_kanja["判明日"] = df_kanja["判明日"].str.replace("00/(.*)", r"20/\1", regex=True)
     df_kanja["判明日"] = df_kanja["判明日"].str.replace("(.*)月(.*)日", r"2020/\1/\2", regex=True)
+    df_kanja["判明日"] = df_kanja["判明日"].str.replace("(.*)月(.*)月", r"2020/\1/\2", regex=True)
     df_kanja["date"] = df_kanja["判明日"].apply(
         lambda x: pd.to_datetime(x, errors="coerce")
         if str(x).startswith("202")
