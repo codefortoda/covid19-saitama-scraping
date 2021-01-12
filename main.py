@@ -146,6 +146,8 @@ def export_data_json():
     # 状況
     jokyo_path = get_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
     df_kanja = pd.read_csv(jokyo_path, encoding="cp932")
+    df_kanja["判明日"] = df_kanja["判明日"].str.replace("2000/(.*)", "2020/\1", regex=True)
+    df_kanja["判明日"] = df_kanja["判明日"].str.replace("00/(.*)", "20/\1", regex=True)
     df_kanja["date"] = df_kanja["判明日"].apply(
         lambda x: pd.to_datetime(x, errors="coerce")
         if str(x).startswith("202")
