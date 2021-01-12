@@ -55,7 +55,8 @@ def export_data_json():
     tag = soup.select_one("#tmp_contents > div > div.outline > ul")
 
     # 更新日付取得
-    lg = re.search("([0-9]+)月([0-9]+)日", tag.get_text())
+    h2 = soup.select_one("#tmp_contents > h2")
+    lg = re.search("([0-9]+)月([0-9]+)日", h2.get_text())
     dt_now = datetime.datetime.now()
     dt_update = datetime.datetime(dt_now.year, int(lg.group(1)), int(lg.group(2)), 21, 0).strftime("%Y/%m/%d %H:%M")
     data = {"lastUpdate": dt_update}
