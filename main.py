@@ -135,7 +135,10 @@ def export_data_json():
 
     # 検査
     kensa_path = get_csv(settings.KENSA_URL, settings.KENSA_TITLE)
-    df_kensa = pd.read_csv(kensa_path, encoding="cp932", index_col="検査日", parse_dates=True)
+    df_kensa = pd.read_csv(kensa_path, encoding="cp932")
+    df_kensa["検査日"] = df_kensa["検査日"].str.replace("(.*)月(.*)日", r"2021/\1/\2", regex=True)
+    df_kensa["検査日"] = pd.to_datetime(df_kensa["検査日"])
+    df_kensa = df_kensa.set_index("検査日")
     df_kensa.rename(columns={"検査数（延べ人数）": "小計"}, inplace=True)
     df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%dT08:00:00.000Z")
     df_insp_sum = df_kensa.loc[:, ["日付", "小計"]]
