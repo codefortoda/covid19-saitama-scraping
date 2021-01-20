@@ -103,6 +103,13 @@ def export_data_json():
     }
 
     # main_summary.json
+
+    #陽性者内訳 データ不正対応
+    if "一般医療機関" in temp:
+        temp["入院中"] = temp["指定医療機関"] + temp["一般医療機関"]
+    else:
+        temp["入院中"] = temp["陽性確認者数"] - temp["宿泊療養"] - temp["自宅療養"] - temp["調整中"] - temp["退院・療養終了_計"] - temp["死亡"]
+
     main_summary = {
         "attr": "検査実施人数",
         "value": temp["自治体による検査"],
@@ -113,7 +120,7 @@ def export_data_json():
                 "children": [
                     {
                         "attr": "入院中",
-                        "value": temp["指定医療機関"] + temp["一般医療機関"],
+                        "value": temp["入院中"],
                         "children": [
                             {"attr": "重症", "value": temp["最重症者"] + temp["重症者"]},
                         ],
