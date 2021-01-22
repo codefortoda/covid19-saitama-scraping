@@ -64,7 +64,7 @@ def export_data_json():
     # 人数取得
     text = tag.get_text(strip=True)
     temp={}
-    for i in re.finditer(r"(陽性確認者数|新規公表分|指定医療機関|一般医療機関|最重症者|重症者|宿泊療養|自宅療養|新型コロナウイルス感染症を死因とする死亡|死亡|新規公表分|退院・療養終了)：?([0-9,]+)人?", text):
+    for i in re.finditer(r"(陽性確認者数|新規公表分|指定医療機関|一般医療機関|最重症者|重症者|宿泊療養|自宅療養等|新型コロナウイルス感染症を死因とする死亡|死亡|新規公表分|退院・療養終了)：?([0-9,]+)人?", text):
         temp[i.group(1)] = int(i.group(2).replace(",", ""))
     for i in re.finditer(r"(自治体による検査|民間検査機関等による検査)（\d{1,2}月\d{1,2}日まで）：延べ([0-9,]+)人", text):
         temp[i.group(1)] = int(i.group(2).replace(",", ""))
@@ -89,9 +89,9 @@ def export_data_json():
                 "children": [
                     {
                         "attr": "入院中",
-                        "value": temp["陽性確認者数"] - temp["退院・療養終了_計"] - temp["死亡"],
+                        "value": temp["入院_計"],
                         "children": [
-                            {"attr": "軽症・中等症", "value": temp["陽性確認者数"] - temp["退院・療養終了_計"] - temp["死亡"] - temp["最重症者"] - temp["重症者"]},
+                            {"attr": "軽症・中等症", "value": temp["入院_計"] - temp["最重症者"] - temp["重症者"]},
                             {"attr": "重症", "value": temp["最重症者"] + temp["重症者"]},
                         ],
                     },
@@ -105,11 +105,6 @@ def export_data_json():
     # main_summary.json
 
     #陽性者内訳 データ不正対応
-    if "一般医療機関" in temp:
-        temp["入院中"] = temp["指定医療機関"] + temp["一般医療機関"]
-    else:
-        temp["入院中"] = temp["陽性確認者数"] - temp["宿泊療養"] - temp["自宅療養"] - temp["新規公表分"] - temp["退院・療養終了_計"] - temp["死亡"]
-
     main_summary = {
         "attr": "検査実施人数",
         "value": temp["自治体による検査"],
@@ -120,13 +115,13 @@ def export_data_json():
                 "children": [
                     {
                         "attr": "入院中",
-                        "value": temp["入院中"],
+                        "value": temp["入院_計"],
                         "children": [
                             {"attr": "重症", "value": temp["最重症者"] + temp["重症者"]},
                         ],
                     },
                     {"attr": "宿泊療養", "value": temp["宿泊療養"]},
-                    {"attr": "自宅療養", "value": temp["自宅療養"]},
+                    {"attr": "自宅療養", "value": temp["自宅療養等"]},
                     {"attr": "調整中", "value": temp["新規公表分"]},
                     {"attr": "死亡", "value": temp["死亡"]},
                     {"attr": "退院・療養終了", "value": temp["退院・療養終了_計"]},
