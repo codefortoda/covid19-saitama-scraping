@@ -128,7 +128,6 @@ def export_data_json():
                     {"attr": "宿泊療養", "value": temp["宿泊療養"]},
                     {"attr": "自宅療養", "value": temp["自宅療養"]},
                     {"attr": "調整中", "value": temp["新規公表分"]},
-                    {"attr": "新規公表分", "value": temp["新規公表分"]},
                     {"attr": "死亡", "value": temp["死亡"]},
                     {"attr": "退院・療養終了", "value": temp["退院・療養終了_計"]},
                 ],
