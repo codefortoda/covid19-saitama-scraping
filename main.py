@@ -168,6 +168,7 @@ def export_data_json():
     # 検査
     kensa_path = fetch_csv(settings.KENSA_URL, settings.KENSA_TITLE)
     df_kensa = pd.read_csv(kensa_path, encoding="cp932")
+    df_kensa.dropna(subset=["検査日"], inplace=True)
 
     df_date = (
         df_kensa["検査日"]
