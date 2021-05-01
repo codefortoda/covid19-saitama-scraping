@@ -84,7 +84,7 @@ def export_data_json():
     ):
         temp[i.group(1)] = int(i.group(2).replace(",", ""))
 
-    for i in re.finditer(r"(自治体による検査|民間検査機関等による検査)[\(（]\d{1,2}月\d{1,2}日まで[\)）]：延べ([0-9,]+)人", text):
+    for i in re.finditer(r"(自治体による検査|民間検査機関等による検査)[\(（]\d{1,2}月\d{1,2}日?まで[\)）]：延べ([0-9,]+)人", text):
         temp[i.group(1)] = int(i.group(2).replace(",", ""))
 
     m = re.search("(入院)：(指定医療機関)([0-9,]+)人?\s*(一般医療機関)([0-9,]+)人\s*(計)([0-9,]+)人?", text)
