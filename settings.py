@@ -4,6 +4,7 @@ MAIN_SUMMARY_URL = "http://www.pref.saitama.lg.jp/a0701/shingatacoronavirus.html
 # 陽性患者数
 JOKYO_URL = "https://opendata.pref.saitama.lg.jp/data/dataset/covid19-jokyo"
 JOKYO_TITLE = "^埼玉県内の新型コロナウイルス感染症の発生状況"
+JOKYO_DATA_URL = "https://opendata.pref.saitama.lg.jp/data/dataset/c3a8db28-b943-4fcc-82ec-b7febd460bec/resource/d7a9a4cf-af80-4d02-803d-20c70380bec7/download/jokyo20210801.csv"
 
 # 検査数
 KENSA_URL = "https://opendata.pref.saitama.lg.jp/data/dataset/covid19-kensa"
