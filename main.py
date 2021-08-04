@@ -193,7 +193,7 @@ def export_data_json():
     }
 
     # 状況
-    jokyo_path = settings.JOKYO_DATA_URL # fetch_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
+    jokyo_path = fetch_file(settings.JOKYO_DATA_URL, "download") # fetch_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
     df_kanja = pd.read_csv(jokyo_path, encoding="cp932")
 
     df_temp = (
