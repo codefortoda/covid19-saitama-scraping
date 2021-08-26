@@ -99,13 +99,14 @@ def export_data_json():
         temp[f"{m.group(1)}_{m.group(4)}"] = int(m.group(5).replace(",", ""))
         temp[f"{m.group(1)}_{m.group(6)}"] = int(m.group(7).replace(",", ""))
 
-    temp["現在の患者数"] = temp["陽性確認者数"] - temp["退院・療養終了_計"] - temp["死亡"]
-    temp["自宅療養等"] = temp["自宅療養"] + temp["宿泊療養予定(宿泊療養施設への入室予定として調整している者)"] + temp["入院予定・宿泊療養等調整中(入院予定として調整している者のほか宿泊療養等を調整中の者)"]
+    temp["現在の患者数"] = "-" # temp["陽性確認者数"] - temp["退院・療養終了_計"] - temp["死亡"]
+    temp["自宅療養等"] = "-" # temp["自宅療養"] + temp["宿泊療養予定(宿泊療養施設への入室予定として調整している者)"] + temp["入院予定・宿泊療養等調整中(入院予定として調整している者のほか宿泊療養等を調整中の者)"]
 
     # 入院中
-    hospital = [temp.get("入院_計"), temp["現在の患者数"] - temp["宿泊療養"] - temp["自宅療養等"] - temp["新規公表分"], temp["指定医療機関"] + temp["一般医療機関"]]
-    h = [k for k, v in Counter(hospital).items() if v > 1]
-    temp["入院中"] = h[0] if h else hospital[0]
+    # hospital = [temp.get("入院_計"), temp["現在の患者数"] - temp["宿泊療養"] - temp["自宅療養等"] - temp["新規公表分"], temp["指定医療機関"] + temp["一般医療機関"]]
+    # h = [k for k, v in Counter(hospital).items() if v > 1]
+    # temp["入院中"] = h[0] if h else hospital[0]
+    temp["入院中"] = temp["指定医療機関"] + temp["一般医療機関"]
 
     data["main_summary"] = {
         "attr": "検査実施人数",
@@ -121,16 +122,16 @@ def export_data_json():
                         "children": [
                             {
                                 "attr": "軽症・中等症",
-                                "value": temp["陽性確認者数"]
-                                - temp["退院・療養終了_計"]
-                                - temp["死亡"]
-                                - temp["最重症者"]
-                                - temp["重症者"],
+                                "value": "-" # temp["陽性確認者数"]
+                                # - temp["退院・療養終了_計"]
+                                # - temp["死亡"]
+                                # - temp["最重症者"]
+                                # - temp["重症者"],
                             },
                             {"attr": "重症", "value": temp["最重症者"] + temp["重症者"]},
                         ],
                     },
-                    {"attr": "退院", "value": temp["退院・療養終了_計"]},
+                    {"attr": "退院", "value": "-"}, # temp["退院・療養終了_計"]},
                     {"attr": "死亡", "value": temp["死亡"]},
                 ],
             }
@@ -157,7 +158,7 @@ def export_data_json():
                     {"attr": "自宅療養", "value": temp["自宅療養等"]},
                     {"attr": "新規公表分", "value": temp["新規公表分"]},
                     {"attr": "死亡", "value": temp["死亡"]},
-                    {"attr": "退院・療養終了", "value": temp["退院・療養終了_計"]},
+                    {"attr": "退院・療養終了", "value": "-"}, # temp["退院・療養終了_計"]},
                 ],
             }
         ],
