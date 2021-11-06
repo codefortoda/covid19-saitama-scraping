@@ -167,30 +167,36 @@ def export_data_json():
     dumps_json("main_summary.json", main_summary, "data")
 
     # 検査
-    kensa_path = fetch_csv(settings.KENSA_URL, settings.KENSA_TITLE)
-    df_kensa = pd.read_csv(kensa_path, encoding="cp932")
-    df_kensa.dropna(subset=["検査日"], inplace=True)
+    try:
+        kensa_path = fetch_csv(settings.KENSA_URL, settings.KENSA_TITLE)
+        df_kensa = pd.read_csv(kensa_path, encoding="cp932")
+        df_kensa.dropna(subset=["検査日"], inplace=True)
 
-    df_date = (
-        df_kensa["検査日"]
-        .astype("str")
-        .str.normalize("NFKC")
-        .apply(str2date)
-        .apply(pd.Series)
-        .rename(columns={0: "year", 1: "month", 2: "day"})
-    )
+        df_date = (
+            df_kensa["検査日"]
+            .astype("str")
+            .str.normalize("NFKC")
+            .apply(str2date)
+            .apply(pd.Series)
+            .rename(columns={0: "year", 1: "month", 2: "day"})
+        )
 
-    df_date["year"] = df_date["year"].replace({20: 2020, 21: 2021}).fillna(method="ffill")
-    df_kensa["検査日"] = pd.to_datetime(df_date, errors="coerce")
-    df_kensa = df_kensa.set_index("検査日")
-    df_kensa.rename(columns={"検査数（延べ人数）": "小計"}, inplace=True)
-    df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%dT08:00:00.000Z")
-    df_insp_sum = df_kensa.loc[:, ["日付", "小計"]]
+        df_date["year"] = df_date["year"].replace({20: 2020, 21: 2021}).fillna(method="ffill")
+        df_kensa["検査日"] = pd.to_datetime(df_date, errors="coerce")
+        df_kensa = df_kensa.set_index("検査日")
+        df_kensa.rename(columns={"検査数（延べ人数）": "小計"}, inplace=True)
+        df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%dT08:00:00.000Z")
+        df_insp_sum = df_kensa.loc[:, ["日付", "小計"]]
 
-    data["inspections_summary"] = {
-        "data": df_insp_sum.to_dict(orient="records"),
-        "date": str_update,
-    }
+        data["inspections_summary"] = {
+            "data": df_insp_sum.to_dict(orient="records"),
+            "date": str_update,
+        }
+        kensa_last_date = df_kensa.index[-1]
+    except Exception as e:
+        print(e)
+        data["inspections_summary"] = {}
+        kensa_last_date = str_update
 
     # 状況
     jokyo_path = fetch_file(settings.JOKYO_DATA_URL, "download") # fetch_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
@@ -218,7 +224,7 @@ def export_data_json():
 
     # patients_summary
     ser_patients_sum = df_kanja["date"].value_counts().sort_index()
-    dt_range = pd.date_range(ser_patients_sum.index[0], df_kensa.index[-1])
+    dt_range = pd.date_range(ser_patients_sum.index[0], kensa_last_date)
     ser_patients_sum = ser_patients_sum.reindex(index=dt_range, fill_value=0)
     df_patients_sum = pd.DataFrame({"小計": ser_patients_sum})
     df_patients_sum["日付"] = df_patients_sum.index.strftime("%Y-%m-%dT08:00:00.000Z")
