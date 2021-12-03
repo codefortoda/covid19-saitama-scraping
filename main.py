@@ -58,7 +58,7 @@ def export_data_json():
     soup = fetch_soup(settings.MAIN_SUMMARY_URL)
 
     # 更新日付取得
-    s = soup.select_one("#tmp_contents > h2").get_text()
+    s = soup.select_one("#tmp_contents > h2:nth-of-type(2)").get_text()
     m = re.search("([0-9]+)月([0-9]+)日", s)
 
     month, day = map(int, m.groups())
