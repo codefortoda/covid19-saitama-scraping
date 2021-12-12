@@ -6,7 +6,7 @@ name: Export JSON Files
 on:
   push:
   schedule:
-    - cron: "30 * * * *"
+    - cron: "30 3,6,7,8,15 * * *"
 
 jobs:
   build:
