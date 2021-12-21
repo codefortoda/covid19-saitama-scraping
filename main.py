@@ -187,6 +187,7 @@ def export_data_json():
         df_kensa.rename(columns={"検査数（延べ人数）": "小計"}, inplace=True)
         df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%dT08:00:00.000Z")
         df_insp_sum = df_kensa.loc[:, ["日付", "小計"]]
+        df_insp_sum = df_insp_sum.fillna(0)
 
         data["inspections_summary"] = {
             "data": df_insp_sum.to_dict(orient="records"),
