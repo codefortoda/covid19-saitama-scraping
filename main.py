@@ -76,7 +76,6 @@ def export_data_json():
     text = tag.get_text(strip=True)
 
     temp = {}
-    #print(text)
 
     for i in re.finditer(
         r"(陽性確認者数|新規公表分|指定医療機関|一般医療機関|最重症者|重症者|宿泊療養|自宅療養|宿泊療養予定\(宿泊療養施設への入室予定として調整している者\)|入院予定・宿泊療養等調整中\(入院予定として調整している者のほか宿泊療養等を調整中の者\)|新型コロナウイルス感染症を死因とする死亡|死亡|新規公表分|退院・療養終了)：?([0-9,]+)人?",
@@ -200,6 +199,8 @@ def export_data_json():
         kensa_last_date = str_update
 
     # 状況
+    export_patients_summary_json(str_update)
+    """
     # jokyo_path = fetch_file(settings.JOKYO_DATA_URL, "download") # fetch_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
     jokyo_path = "download/jokyo20210801.csv"
     df_kanja = pd.read_csv(jokyo_path, encoding="cp932")
@@ -250,6 +251,7 @@ def export_data_json():
         "data": df_patients.to_dict(orient="records"),
         "date": str_update,
     }
+    """
 
     dumps_json("data.json", data, "data")
 
@@ -275,6 +277,29 @@ def export_news_json():
             break
 
     dumps_json("news.json", newslist, "data")
+
+def export_patients_summary_json(update_date):
+    url = settings.PATIENTS_SUMMARY_URL
+    text = settings.PATIENTS_SUMMARY_TITLE
+
+    soup = fetch_soup(url)
+    csv_href = soup.find_all("a", text=re.compile(text))[-1].get("href")
+
+    path = fetch_file(urljoin(url, csv_href), "download")
+
+    # 日付,新規陽性者数,陽性者数累計
+    df = pd.read_csv(path, encoding="cp932")
+
+    df["日付"] = pd.to_datetime(df["日付"], errors="coerce")
+    df["日付"] = df["日付"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
+    df.rename(columns={"新規陽性者数": "小計"}, inplace=True)
+    df.drop(columns="陽性者数累計", inplace=True)
+    patients_summary = {
+        "data": df.to_dict(orient="records"),
+        "date": update_date,
+    }
+
+    dumps_json("patients_summary.json", patients_summary, "data")
 
 # main
 if __name__ == "__main__":
