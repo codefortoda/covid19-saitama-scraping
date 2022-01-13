@@ -65,9 +65,6 @@ def export_data_json():
     dt_now = datetime.datetime.now()
     dt_update = dt_now.replace(month=month, day=day, hour=21, minute=0, second=0, microsecond=0)
 
-    if dt_now < dt_update:
-        dt_update = dt_update.replace(year=dt_now.year -1)
-
     str_update = dt_update.strftime("%Y/%m/%d %H:%M")
     data = {"lastUpdate": str_update}
     tag = soup.select_one("#tmp_contents > div > div.outline > ul")
