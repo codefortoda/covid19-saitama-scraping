@@ -291,6 +291,8 @@ def export_patients_summary_json(update_date):
     df["日付"] = df["日付"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
     df.rename(columns={"新規陽性者数": "小計"}, inplace=True)
     df.drop(columns="陽性者数累計", inplace=True)
+    df["うちみなし陽性者数"] = df["うちみなし陽性者数"].fillna(0)
+    df.drop(columns="うちみなし陽性者数累計", inplace=True)
     patients_summary = {
         "data": df.to_dict(orient="records"),
         "date": update_date,
