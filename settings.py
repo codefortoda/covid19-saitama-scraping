@@ -1,5 +1,5 @@
 # 検査陽性者の状況
-MAIN_SUMMARY_URL = "http://www.pref.saitama.lg.jp/a0701/shingatacoronavirus.html"
+MAIN_SUMMARY_URL = "https://www.pref.saitama.lg.jp/a0701/shingatacoronavirus.html"
 
 # 陽性患者数
 JOKYO_URL = "https://opendata.pref.saitama.lg.jp/data/dataset/covid19-jokyo"
