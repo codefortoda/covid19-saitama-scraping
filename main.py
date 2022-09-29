@@ -110,7 +110,7 @@ def export_data_json():
     # main_summary.json
     main_summary = {
         "attr": "検査実施人数",
-        "value": temp["自治体による検査"] + temp["民間検査機関等による検査"],
+        "value": temp["自治体による検査"] - temp["民間検査機関等による検査"],
         "children": [
             {
                 "attr": "陽性患者数",
@@ -132,9 +132,12 @@ def export_data_json():
             }
         ],
         "lastUpdate": str_update,
-    }
 
+    }
     dumps_json("main_summary.json", main_summary, "data")
+
+    # 陽性者数推移
+    export_patients_summary_json(str_update)    
 
 def export_news_json():
     newslist = settings.NEWS_LIST
