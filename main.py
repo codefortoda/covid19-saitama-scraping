@@ -101,46 +101,16 @@ def export_data_json():
         temp[f"{m.group(1)}_{m.group(4)}"] = int(m.group(5).replace(",", ""))
         temp[f"{m.group(1)}_{m.group(6)}"] = int(m.group(7).replace(",", ""))
 
-    temp["現在の患者数"] = temp["陽性確認者数"] - temp["退院・療養終了_計"] - temp["死亡"]
-    temp["自宅療養等"] = temp["自宅療養"] + temp["宿泊療養予定(宿泊療養施設への入室予定として調整している者)"] + temp["入院予定・宿泊療養等調整中(入院予定として調整している者のほか宿泊療養等を調整中の者)"]
+    temp["現在の患者数"] = "-"
+    temp["自宅療養等"] = "-"
 
     # 入院中
     temp["入院中"] = temp["指定医療機関"] + temp["一般医療機関"]
 
-    data["main_summary"] = {
-        "attr": "検査実施人数",
-        "value": temp["自治体による検査"],
-        "children": [
-            {
-                "attr": "陽性患者数",
-                "value": temp["陽性確認者数"],
-                "children": [
-                    {
-                        "attr": "入院中",
-                        "value": temp["入院中"],
-                        "children": [
-                            {
-                                "attr": "軽症・中等症",
-                                "value": temp["陽性確認者数"]
-                                    - temp["退院・療養終了_計"]
-                                    - temp["死亡"]
-                                    - temp["最重症者"]
-                                    - temp["重症者"],
-                            },
-                            {"attr": "重症", "value": temp["最重症者"] + temp["重症者"]},
-                        ],
-                    },
-                    {"attr": "退院", "value": temp["退院・療養終了_計"]},
-                    {"attr": "死亡", "value": temp["死亡"]},
-                ],
-            }
-        ],
-    }
-
     # main_summary.json
     main_summary = {
         "attr": "検査実施人数",
-        "value": temp["自治体による検査"],
+        "value": temp["自治体による検査"] + temp["民間検査機関等による検査"],
         "children": [
             {
                 "attr": "陽性患者数",
@@ -157,7 +127,7 @@ def export_data_json():
                     {"attr": "自宅療養", "value": temp["自宅療養等"]},
                     {"attr": "新規公表分", "value": temp["新規公表分"]},
                     {"attr": "死亡", "value": temp["死亡"]},
-                    {"attr": "退院・療養終了", "value": temp["退院・療養終了_計"]},
+                    {"attr": "退院・療養終了", "value": "-"},
                 ],
             }
         ],
@@ -165,96 +135,6 @@ def export_data_json():
     }
 
     dumps_json("main_summary.json", main_summary, "data")
-
-    # 検査
-    try:
-        kensa_path = fetch_csv(settings.KENSA_URL, settings.KENSA_TITLE)
-        df_kensa = pd.read_csv(kensa_path, encoding="cp932")
-        df_kensa.dropna(subset=["検査日"], inplace=True)
-
-        df_date = (
-            df_kensa["検査日"]
-            .astype("str")
-            .str.normalize("NFKC")
-            .apply(str2date)
-            .apply(pd.Series)
-            .rename(columns={0: "year", 1: "month", 2: "day"})
-        )
-
-        df_date["year"] = df_date["year"].replace({20: 2020, 21: 2021}).fillna(method="ffill")
-        df_kensa["検査日"] = pd.to_datetime(df_date, errors="coerce")
-        df_kensa = df_kensa.set_index("検査日")
-        df_kensa.rename(columns={"検査数（延べ人数）": "小計"}, inplace=True)
-        df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%dT08:00:00.000Z")
-        df_insp_sum = df_kensa.loc[:, ["日付", "小計"]]
-        df_insp_sum = df_insp_sum.fillna(0)
-
-        data["inspections_summary"] = {
-            "data": df_insp_sum.to_dict(orient="records"),
-            "date": str_update,
-        }
-        kensa_last_date = df_kensa.index[-1]
-    except Exception as e:
-        print(e)
-        data["inspections_summary"] = {}
-        kensa_last_date = str_update
-
-    # 状況
-    export_patients_summary_json(str_update)
-    """
-    # jokyo_path = fetch_file(settings.JOKYO_DATA_URL, "download") # fetch_csv(settings.JOKYO_URL, settings.JOKYO_TITLE)
-    jokyo_path = "download/jokyo20210801.csv"
-    df_kanja = pd.read_csv(jokyo_path, encoding="cp932")
-
-    df_temp = (
-        df_kanja["判明日"]
-        .astype("str")
-        .str.normalize("NFKC")
-        .apply(str2date)
-        .apply(pd.Series)
-        .rename(columns={0: "year", 1: "month", 2: "day"})
-    )
-    df_temp["year"] = df_temp["year"].replace({20: 2020, 21: 2021}).fillna(method="ffill")
-
-    df_kanja["date"] = pd.to_datetime(df_temp, errors="coerce")
-
-    #チェック
-    # 2020年より前を抽出
-    df_kanja[df_kanja["date"] < datetime.datetime(2020, 1, 1)]
-    # 未来の日付を抽出
-    df_kanja[df_kanja["date"] > dt_now]
-    # 日付が空で調査中、発生届取り下げ、東京都発表、重複でないものを抽出
-    df_kanja[(df_kanja["date"].isna()) & ~((df_kanja["判明日"].isin(["調査中", "発生届取り下げ", "東京都発表"]) | df_kanja["判明日"].str.contains("重複", na=False)))]
-
-    # patients_summary
-    ser_patients_sum = df_kanja["date"].value_counts().sort_index()
-    dt_range = pd.date_range(ser_patients_sum.index[0], kensa_last_date)
-    ser_patients_sum = ser_patients_sum.reindex(index=dt_range, fill_value=0)
-    df_patients_sum = pd.DataFrame({"小計": ser_patients_sum})
-    df_patients_sum["日付"] = df_patients_sum.index.strftime("%Y-%m-%dT08:00:00.000Z")
-    data["patients_summary"] = {
-        "data": df_patients_sum.to_dict(orient="records"),
-        "date": str_update,
-    }
-
-    # patients
-    df_kanja.rename(columns={"NO.": "No"}, inplace=True)
-    df_kanja["判明日"] = df_kanja["判明日"].fillna("調査中")
-    df_kanja["リリース日"] = df_kanja["date"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
-    df_kanja["リリース日"] = df_kanja["リリース日"].mask(df_kanja["判明日"] == "調査中", "調査中")
-    df_kanja["date"] = df_kanja["date"].dt.strftime("%Y-%m-%d")
-    df_kanja["date"] = df_kanja["date"].mask(df_kanja["判明日"] == "調査中", "調査中").fillna("調査中")
-    df_kanja["退院"] = ""
-    df_patients = df_kanja.loc[:, ["No", "リリース日", "年代", "性別", "居住地", "退院", "date"]].copy()
-    df_patients.dropna(subset=["リリース日"], inplace=True)
-    df_patients.fillna("", inplace=True)
-    data["patients"] = {
-        "data": df_patients.to_dict(orient="records"),
-        "date": str_update,
-    }
-    """
-
-    dumps_json("data.json", data, "data")
 
 def export_news_json():
     newslist = settings.NEWS_LIST
