@@ -110,7 +110,7 @@ def export_data_json():
     # main_summary.json
     main_summary = {
         "attr": "検査実施人数",
-        "value": temp["自治体による検査"] - temp["民間検査機関等による検査"],
+        "value": "-",
         "children": [
             {
                 "attr": "陽性患者数",
