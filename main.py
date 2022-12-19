@@ -173,6 +173,7 @@ def export_patients_summary_json(update_date):
 
     # 日付,新規陽性者数,陽性者数累計
     df = pd.read_csv(path, encoding="cp932")
+    df.dropna(subset=["日付"], inplace=True)
 
     df["日付"] = pd.to_datetime(df["日付"], errors="coerce")
     df["日付"] = df["日付"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
