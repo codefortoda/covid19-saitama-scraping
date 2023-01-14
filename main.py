@@ -172,6 +172,7 @@ def export_patients_summary_json(update_date):
     path = fetch_file(urljoin(url, csv_href), "download")
 
     # 日付,新規陽性者数,陽性者数累計
+    df = pd.read_csv(path, encoding="cp932")
     try:
         df.dropna(subset=["日付"], inplace=True)
 
