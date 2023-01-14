@@ -172,21 +172,23 @@ def export_patients_summary_json(update_date):
     path = fetch_file(urljoin(url, csv_href), "download")
 
     # 日付,新規陽性者数,陽性者数累計
-    df = pd.read_csv(path, encoding="cp932")
-    df.dropna(subset=["日付"], inplace=True)
+    try:
+        df.dropna(subset=["日付"], inplace=True)
 
-    df["日付"] = pd.to_datetime(df["日付"], errors="coerce")
-    df["日付"] = df["日付"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
-    df.rename(columns={"新規陽性者数": "小計"}, inplace=True)
-    df.drop(columns="陽性者数累計", inplace=True)
-    df["うちみなし陽性者数"] = df["うちみなし陽性者数"].fillna(0)
-    df.drop(columns="うちみなし陽性者数累計", inplace=True)
-    patients_summary = {
-        "data": df.to_dict(orient="records"),
-        "date": update_date,
-    }
+        df["日付"] = pd.to_datetime(df["日付"], errors="coerce")
+        df["日付"] = df["日付"].dt.strftime("%Y-%m-%dT08:00:00.000Z")
+        df.rename(columns={"新規陽性者数": "小計"}, inplace=True)
+        df.drop(columns="陽性者数累計", inplace=True)
+        df["うちみなし陽性者数"] = df["うちみなし陽性者数"].fillna(0)
+        df.drop(columns="うちみなし陽性者数累計", inplace=True)
+        patients_summary = {
+            "data": df.to_dict(orient="records"),
+            "date": update_date,
+        }
 
-    dumps_json("patients_summary.json", patients_summary, "data")
+        dumps_json("patients_summary.json", patients_summary, "data")
+    except KeyError as e:
+        print(e)
 
 # main
 if __name__ == "__main__":
