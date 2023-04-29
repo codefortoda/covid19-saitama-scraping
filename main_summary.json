@@ -4,15 +4,15 @@
     "children": [
         {
             "attr": "陽性患者数",
-            "value": 1809869,
+            "value": 1810645,
             "children": [
                 {
                     "attr": "入院中",
-                    "value": 174,
+                    "value": 167,
                     "children": [
                         {
                             "attr": "重症",
-                            "value": 2
+                            "value": 3
                         }
                     ]
                 },
@@ -26,7 +26,7 @@
                 },
                 {
                     "attr": "新規公表分",
-                    "value": 567
+                    "value": 776
                 },
                 {
                     "attr": "死亡",
@@ -39,5 +39,5 @@
             ]
         }
     ],
-    "lastUpdate": "2023/04/28 21:00"
+    "lastUpdate": "2023/04/29 21:00"
 }
