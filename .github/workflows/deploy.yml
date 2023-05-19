@@ -3,10 +3,10 @@
 
 name: Export JSON Files
 
-on:
-  push:
-  schedule:
-    - cron: "30 9,12,13,14,21 * * *"
+# on:
+#   push:
+#   schedule:
+#     - cron: "30 9,12,13,14,21 * * *"
 
 jobs:
   build:
